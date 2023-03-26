@@ -1,18 +1,22 @@
 const express = require('express')
-const handlebars = require('express-handlebars')
+const {engine} = require('express-handlebars')
 const app = express()
+const path = require('path')
+const admin = require('./routes/admin')
 
 //const mongoose = require('mongoose')
 
 //Configurações
     app.use(express.json())
     //handlebars
-    app.engine('handlebars',handlebars({defaultLayout:'main'}))
+    app.engine('handlebars',engine({defaultLayout:'main'}))
     app.set('view engine', 'handlebars')
     //mongoose
         //em breve
-
+    //Public
+        app.use(express.static(path.join(__dirname,"public")))
 //Rotas
+app.use("/",admin)
 
 //Outros
 const PORT = 3000 || process.env.PORT

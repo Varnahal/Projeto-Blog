@@ -16,7 +16,7 @@ const admin = require('./routes/admin')
     //Public
         app.use(express.static(path.join(__dirname,"public")))
 //Rotas
-app.use("/",admin)
+app.use("/admin",admin)
 
 //Outros
 const PORT = 3000 || process.env.PORT

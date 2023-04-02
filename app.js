@@ -5,13 +5,29 @@ const app = express()
 const path = require('path')
 const admin = require('./routes/admin')
 const mongoose = require('mongoose')
+const session = require('express-session')
+const flash = require('connect-flash')
 
 //Configurações
-    app.use(bodyParser.urlencoded({extended:true}))
-    app.use(bodyParser.json())
+    //sessão
+       app.use(session({
+        secret:"penis",
+        resave:true,
+        saveUninitialized:true
+       }))
+       app.use(flash()) 
+    //midddleware
+        app.use((req,res,next)=>{
+            res.locals.success_msg = req.flash('success_msg')
+            res.locals.error_msg = req.flash('error_msg')
+            next()
+        })
+    //body-parser
+        app.use(bodyParser.urlencoded({extended:true}))
+        app.use(bodyParser.json())
     //handlebars
-    app.engine('handlebars',engine({defaultLayout:'main'}))
-    app.set('view engine', 'handlebars')
+        app.engine('handlebars',engine({defaultLayout:'main'}))
+        app.set('view engine', 'handlebars')
     //mongoose
         mongoose.connect('mongodb+srv://varnahal:chuvachu@varnahal.wu5lufq.mongodb.net/?retryWrites=true&w=majority')
         .then(()=>{
@@ -22,10 +38,12 @@ const mongoose = require('mongoose')
     //Public
         app.use(express.static(path.join(__dirname,"public")))
 
-        app.use((req,res,next)=>{
-            console.log('olá sou um middleware')
-            next()
-        })
+        
+        //Exemplo de middleware
+            // app.use((req,res,next)=>{
+            //     console.log('olá sou um middleware')
+            //     next()
+            // })
 //Rotas
 app.use("/admin",admin)
 

@@ -21,6 +21,11 @@ const mongoose = require('mongoose')
         .catch((err)=>{console.log(err)})
     //Public
         app.use(express.static(path.join(__dirname,"public")))
+
+        app.use((req,res,next)=>{
+            console.log('olá sou um middleware')
+            next()
+        })
 //Rotas
 app.use("/admin",admin)
 

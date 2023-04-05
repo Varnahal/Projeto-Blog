@@ -21,15 +21,33 @@ router.get('/categorias/add',(req,res)=>{
 })
 
 router.post('/categorias/nova',(req,res)=>{
+    var erros = [];
+
+    if(!req.body.nome|| typeof req.body.nome == undefined || req.body.nome == null){
+        erros.push({texto:"Nome inválido"})
+    }
+    if(!req.body.slug || typeof req.body.slug == undefined || req.body.slug == null){
+        erros.push({texto:"slug inválido"})
+    }
+    if(req.body.nome.length <2){
+        erros.push({texto:"tamanho de slug inválido, menos que 2 letras"})
+    }
+
+    if(erros.length > 0){
+        res.render("admin/addcategorias",{erros:erros})
+    }
+
     const novaCategoria = {
         nome:req.body.nome,
         slug:req.body.slug
     }
     new Categoria(novaCategoria).save().then(()=>{
-        console.log('categoria salva com sucesso')
+        req.flash("success_msg","Categoria criada com sucesso")
+        res.redirect('/admin/categorias')
     })
     .catch((err)=>{
-        console.log('erro ao salvar categoria' + err)
+        req.flash("error_msg","erro ao salvar categoria"+ err)
+        res.redirect('/admin')
     })
  })
 

@@ -91,6 +91,32 @@ router.post('/categorias/nova',(req,res)=>{
     })
 
  })
+ router.post('/categorias/deletar',(req,res)=>{
+    Categoria.findByIdAndRemove(req.body.id).then(()=>{
+        req.flash('success_msg',"Deletado com sucesso");
+        res.redirect('/admin/categorias');
+    })
+    .catch((err)=>{
+        req.flash('error_msg','houve um erro ao deletar')
+        res.redirect('/admin/categorias');
+    })
+ })
+
+ router.get('/postagens',(req,res)=>{
+    res.render('admin/postagens')
+ })
+ router.get('/postagens/add',(req,res)=>{
+    Categoria.find().lean().then((categorias)=>{
+        res.render('admin/addpostagem',{categorias:categorias})
+    })
+    .catch((err)=>{
+        req.flash('error_msg','erro ao puxar informacoes de categoria')
+        res.redirect('/admin')
+    })
+    
+ })
+
+
 
 
 

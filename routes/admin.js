@@ -2,8 +2,8 @@ const express = require('express')
 const router = express.Router()
 const mongoose = require('mongoose')
 require('../models/Categoria')
-require('../models/Postagem')
 const Categoria = mongoose.model('categorias')
+require('../models/Postagem')
 const Postagem = mongoose.model('postagens')
 
 
@@ -157,6 +157,69 @@ router.post('/categorias/nova',(req,res)=>{
             res.redirect('/admin/postagens')
         })
     }
+ })
+
+ router.get('/postagens/edit/:id',(req,res)=>{
+
+    Postagem.findOne({_id:req.params.id}).lean()
+    .then((postagem)=>{
+
+        Categoria.find().lean()
+        .then((categorias)=>{
+            res.render('admin/editpostagens',{categorias:categorias,postagem:postagem})
+        })
+        .catch((err)=>{
+            req.flash('error_msg','houve um erro ao carregar categorias')
+            res.redirect('/admin/postagns')
+        })
+    })
+    .catch((err)=>{
+        req.flash('error_msg',"houve um erro ao carregar formulario de edicao")
+        res.redirect('/admin/postagens')
+    })
+
+    
+ })
+ router.post('/postagem/edit',(req,res)=>{
+    console.log('aqui')
+
+    Postagem.findById(req.body.id)
+    .then((postagem)=>{
+        postagem.titulo=req.body.titulo
+        postagem.conteudo=req.body.conteudo
+        postagem.descricao=req.body.descricao
+        postagem.categoria=req.body.categoria
+        postagem.slug=req.body.slug
+
+        postagem.save()
+        .then(()=>{
+            req.flash('success_msg', 'Salvo com sucesso')
+            res.redirect('/admin/postagens')
+        })
+        .catch((err)=>{
+            req.flash('error_msg','Erro ao editar')
+            res.redirect('/admin/postagens')
+        })
+    })
+    .catch((err)=>{
+        req.flash('error_msg','houve um erro ao realizar a edicao')
+        res.redirect('/admin/postagens')
+    })
+
+
+
+ })
+
+ router.get('/postagens/deletar/:id',(req,res)=>{
+    Postagem.findOneAndRemove(req.params.id)
+    .then(()=>{
+        req.flash('success_msg','Postagem apagada com sucesso')
+        res.redirect('/admin/postagens')
+    })
+    .catch((err)=>{
+        req.flash('error_msg','Houve um erro ao deletar a mensagem, tente novamente')
+        res.redirect('/admin/postagens')
+    })
  })
 
 

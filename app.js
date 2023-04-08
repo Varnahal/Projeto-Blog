@@ -7,6 +7,8 @@ const admin = require('./routes/admin')
 const mongoose = require('mongoose')
 const session = require('express-session')
 const flash = require('connect-flash')
+require('../Projeto-Blog/models/Postagem')
+const Postagem = mongoose.model('postagens')
 
 //Configurações
     //sessão
@@ -45,6 +47,37 @@ const flash = require('connect-flash')
             //     next()
             // })
 //Rotas
+app.get('/postagem/:slug',(req,res)=>{
+    Postagem.findOne({slug:req.params.slug}).lean()
+    .then((postagem)=>{
+        if(postagem){
+            res.render('postagem/index',{postagem:postagem})
+        }else{
+            req.flash('error_msg','essa postagem não existe')
+            res.redirect('/')
+        }
+    })
+    .catch((err)=>{
+        req.flash('error_msg','Houve um erro interno')
+        res.redirect('/')
+    })
+})
+
+app.get('/',(req,res)=>{
+    Postagem.find().lean().populate('categoria').sort({data:'desc'})
+    .then((postagens)=>{
+        res.render('index',{postagens:postagens})
+    })
+    .catch((err)=>{
+        req.flash('error_msg','Houve um erro interno')
+        res.redirect('/404')
+    })
+})
+app.get('/404',(req,res)=>{
+    res.send('Erro 404')
+})
+
+
 app.use("/admin",admin)
 
 //Outros

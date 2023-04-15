@@ -11,6 +11,7 @@ require('../Projeto-Blog/models/Postagem')
 const Postagem = mongoose.model('postagens')
 require('../Projeto-Blog/models/Categoria')
 const Categoria = mongoose.model('categorias')
+const usuarios = require('./routes/usuario')
 
 //Configurações
     //sessão
@@ -116,6 +117,7 @@ app.get('/404',(req,res)=>{
 
 
 app.use("/admin",admin)
+app.use('/usuarios',usuarios)
 
 //Outros
 const PORT = 3000 || process.env.PORT

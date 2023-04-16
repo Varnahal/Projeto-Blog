@@ -3,6 +3,7 @@ const router = express.Router()
 const mongoose = require('mongoose')
 require('../models/Usuario')
 const Usuario = mongoose.model('usuarios')
+const bcrypt = require('bcryptjs')
 
 router.get('/registro',(req,res)=>{
     res.render('usuarios/registros')
@@ -14,7 +15,7 @@ router.post('/registro',(req,res)=>{
         erros.push({texto:'nome invalido'})
     }
     if(!req.body.email || typeof req.body.email == undefined || req.body.email == null){
-        erros.push({texto:'eEmail invalido'})
+        erros.push({texto:'Email invalido'})
     }
     if(!req.body.senha || typeof req.body.senha == undefined || req.body.senha == null){
         erros.push({texto:'Senha invalido'})
@@ -29,8 +30,53 @@ router.post('/registro',(req,res)=>{
     if(erros.length > 0){
         res.render("usuarios/registros",{erros:erros})
     }else{
+        
+        Usuario.findOne({email:req.body.email})
+        .then((usuario)=>{
+            if(usuario){
+                req.flash('error_msg','Email já cadastrado')
+                res.redirect('/usuarios/registro')
+            }else{
 
+                const novoUsuario = new Usuario({
+                    nome:req.body.nome,
+                    email:req.body.email,
+                    senha:req.body.senha
+                })
+
+
+                bcrypt.genSalt(10,(erro,salt)=>{
+                    bcrypt.hash(novoUsuario.senha,salt,(err,hash)=>{
+                        if(err){
+                            req.flash('error_msg','houve um erro ao salvar o usuario')
+                            res.redirect('/')
+                        }
+
+                        novoUsuario.senha = hash
+                        novoUsuario.save().then(()=>{
+                            req.flash('success_msg','usuario criado com sucesso')
+                            res.redirect('/')
+                        })
+                        .catch((err)=>{
+                            req.flash('error_msg','Houve um erro ao criar usuario ,tente novamente')
+                            res.redirect('usuarios/registro')
+
+                        })
+                    })
+                })
+
+            }
+        })
+        .catch((err)=>{
+            req.flash('error_msg','Houve um erro interno')
+            res.redirect('/')
+        })
     }
+})
+
+router.get('/login',(req,res)=>{
+    res.render('usuarios/login')
+
 })
 
 module.exports  = router

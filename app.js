@@ -12,6 +12,8 @@ const Postagem = mongoose.model('postagens')
 require('../Projeto-Blog/models/Categoria')
 const Categoria = mongoose.model('categorias')
 const usuarios = require('./routes/usuario')
+const passport = require('passport')
+require('./config/auth')(passport)
 
 //Configurações
     //sessão
@@ -20,6 +22,8 @@ const usuarios = require('./routes/usuario')
         resave:true,
         saveUninitialized:true
        }))
+       app.use(passport.initialize())
+       app.use(passport.session)
        app.use(flash()) 
     //midddleware
         app.use((req,res,next)=>{
